@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\File;
 
 class InstallExamplePosts extends Command
 {
-    protected $signature = 'qwikblog:install-examples {--force : Overwrite existing files}';
+    protected $signature = 'blog:install-examples {--force : Overwrite existing files}';
 
     protected $description = 'Install example blog posts and images';
 
