@@ -4,6 +4,8 @@ namespace BristolDigital\QwikBlog;
 
 use Illuminate\Support\ServiceProvider;
 use BristolDigital\QwikBlog\Services\BlogService;
+use BristolDigital\QwikBlog\Console\Commands\RefreshBlog;
+use BristolDigital\QwikBlog\Console\Commands\InstallExampleData;
 
 class QwikBlogServiceProvider extends ServiceProvider
 {
@@ -39,7 +41,8 @@ class QwikBlogServiceProvider extends ServiceProvider
         // In Commands
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \BristolDigital\QwikBlog\Console\Commands\RefreshBlog::class,
+                RefreshBlog::class,
+                InstallExampleData::class,
             ]);
         }
     }

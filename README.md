@@ -23,6 +23,25 @@ composer require bristol-digital/qwikblog
 
 ## Quick Start
 
+After installation, try the example data:
+```bash
+php artisan qwikblog:install-examples
+```
+
+This installs:
+- 6 example blog posts
+- 6 hero images
+
+Visit `http://yourapp.test/blog` to see your blog in action!
+
+### Remove Example Data
+
+Simply delete the files:
+```bash
+rm resources/posts/*.md
+rm public/images/blog/*.jpg
+```
+
 1. **Publish the config:**
 ```bash
 php artisan vendor:publish --tag=qwikblog-config
@@ -88,6 +107,7 @@ Example: `2024-11-20-my-awesome-post.md`
 ---
 title: Post Title
 subtitle: Post subtitle
+summary: Post summary
 category: Category Name
 hero_image: /path/to/image.jpg
 ---
@@ -126,6 +146,10 @@ Views will be published to `resources/views/vendor/qwikblog/`
 After adding new posts:
 ```bash
 php artisan cache:clear
+```
+or
+```bash
+php artisan blog:refresh
 ```
 
 ## Routes
