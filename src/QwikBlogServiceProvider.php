@@ -1,9 +1,9 @@
 <?php
 
-namespace YourName\QwikBlog;
+namespace BristolDigital\QwikBlog;
 
 use Illuminate\Support\ServiceProvider;
-use YourName\QwikBlog\Services\BlogService;
+use BristolDigital\QwikBlog\Services\BlogService;
 
 class QwikBlogServiceProvider extends ServiceProvider
 {
