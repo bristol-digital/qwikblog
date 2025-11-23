@@ -5,7 +5,7 @@ namespace BristolDigital\QwikBlog\Console\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 
-class InstallExampleData extends Command
+class InstallExamplePosts extends Command
 {
     protected $signature = 'qwikblog:install-examples {--force : Overwrite existing files}';
 
