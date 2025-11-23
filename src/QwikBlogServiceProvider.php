@@ -35,5 +35,12 @@ class QwikBlogServiceProvider extends ServiceProvider
 
         // Load routes
         $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+
+        // In Commands
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \BristolDigital\QwikBlog\Console\Commands\RefreshCache::class,
+            ]);
+        }
     }
 }
