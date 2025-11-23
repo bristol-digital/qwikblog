@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace BristolDigital\QwikBlog\Console\Commands;
 
 use App\Services\BlogService;
 use Illuminate\Console\Command;
