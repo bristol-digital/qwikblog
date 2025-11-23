@@ -25,7 +25,7 @@ composer require bristol-digital/qwikblog
 
 After installation, try the example data:
 ```bash
-php artisan qwikblog:install-examples
+php artisan blog:install-examples
 ```
 
 This installs:
