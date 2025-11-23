@@ -39,7 +39,7 @@ class QwikBlogServiceProvider extends ServiceProvider
         // In Commands
         if ($this->app->runningInConsole()) {
             $this->commands([
-                \BristolDigital\QwikBlog\Console\Commands\RefreshCache::class,
+                \BristolDigital\QwikBlog\Console\Commands\RefreshBlog::class,
             ]);
         }
     }
