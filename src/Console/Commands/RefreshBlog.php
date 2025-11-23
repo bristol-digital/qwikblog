@@ -2,8 +2,8 @@
 
 namespace BristolDigital\QwikBlog\Console\Commands;
 
-use App\Services\BlogService;
 use Illuminate\Console\Command;
+use BristolDigital\QwikBlog\Services\BlogService;
 
 class RefreshBlog extends Command
 {
