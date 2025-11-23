@@ -1,4 +1,4 @@
-@extends('app')
+@extends(config('qwikblog.layout', 'layouts.app'))
 @section('title', 'Blog')
 @section('content')
 
