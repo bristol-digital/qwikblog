@@ -10,6 +10,7 @@ use BristolDigital\QwikBlog\Livewire\Admin\BlogImages;
 use BristolDigital\QwikBlog\Livewire\Admin\PostsIndex;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 use Livewire\Livewire;
 
@@ -35,9 +36,12 @@ class QwikBlogServiceProvider extends ServiceProvider
     public function boot(Router $router): void
     {
         // Routes — public blog + admin, all defined in routes/web.php.
-        // Loaded as part of Laravel's normal route registration so that
-        // the host's own routes can override anything if needed.
-        $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+        // Wrap in the 'web' middleware group so package routes get session,
+        // CSRF, the $errors variable share, and cookie encryption — without
+        // this, package routes that depend on session-bound machinery (login
+        // forms, validation error display, the admin's auth flow) break with
+        // "Undefined variable $errors" or session-related failures.
+        Route::middleware('web')->group(__DIR__.'/../routes/web.php');
 
         // Views — accessible as qwikblog::blog.show, qwikblog::admin.login, etc.
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'qwikblog');
