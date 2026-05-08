@@ -59,14 +59,18 @@ class QwikBlogServiceProvider extends ServiceProvider
         Livewire::component('admin.posts-index', PostsIndex::class);
         Livewire::component('admin.blog-images', BlogImages::class);
 
-        if ($this->app->runningInConsole()) {
-            // Artisan commands.
-            $this->commands([
-                RefreshBlog::class,
-                ImportPosts::class,
-                InstallExamples::class,
-            ]);
+        // Artisan commands. Registered unconditionally (not inside
+        // runningInConsole) so they're available both via CLI and via
+        // Artisan::call(...) from a web request. Anything heavier that
+        // genuinely only matters in console — like the publishes() calls
+        // below — stays inside the runningInConsole block.
+        $this->commands([
+            RefreshBlog::class,
+            ImportPosts::class,
+            InstallExamples::class,
+        ]);
 
+        if ($this->app->runningInConsole()) {
             // Publishable assets — host apps run vendor:publish to copy
             // these into their own project where they can be edited.
             $this->publishes([

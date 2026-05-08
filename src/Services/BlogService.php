@@ -5,7 +5,6 @@ namespace BristolDigital\QwikBlog\Services;
 use BristolDigital\QwikBlog\ValueObjects\BlogPost;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
@@ -381,7 +380,12 @@ class BlogService
 
     private function refreshBlog(): void
     {
-        Artisan::call('blog:refresh');
+        // Direct cache invalidation. Earlier versions invoked the
+        // blog:refresh Artisan command from here, but that requires the
+        // command registry to be populated (which only happens reliably
+        // in the console kernel). Calling clearCache directly works in
+        // every context — CLI, web requests, queued jobs.
+        $this->clearCache();
     }
 
     private function parseDate(mixed $date): ?Carbon
