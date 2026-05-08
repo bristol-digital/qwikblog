@@ -1,33 +1,39 @@
 {
-  "name": "bristol-digital/qwikblog",
-  "description": "A simple file-based blog system for Laravel with Tailwind CSS",
-  "type": "library",
-  "license": "MIT",
-  "keywords": ["laravel", "blog", "markdown", "tailwind"],
-  "authors": [
-    {
-      "name": "Bristol Digital",
-      "email": "code@bristol.digital"
-    }
-  ],
-  "require": {
-    "php": "^8.1|^8.2|^8.3",
-    "illuminate/support": "^12.0",
-    "illuminate/view": "^12.0",
-    "illuminate/routing": "^12.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "BristolDigital\\QwikBlog\\": "src/"
-    }
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "BristolDigital\\QwikBlog\\QwikBlogServiceProvider"
-      ]
-    }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true
+    "name": "bristol-digital/qwikblog",
+    "description": "A simple, file-based blog for Laravel — no database required. Markdown posts with YAML front matter, a Livewire admin with WYSIWYG editor and image gallery, full-text search, scheduling, RSS, sitemap, and SEO meta.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": ["laravel", "blog", "markdown", "tailwind", "livewire", "file-based", "headless", "no-database"],
+    "authors": [
+        {
+            "name": "Bristol Digital",
+            "email": "code@bristol.digital"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "livewire/livewire": "^3.7",
+        "illuminate/support": "^12.0",
+        "illuminate/view": "^12.0",
+        "illuminate/routing": "^12.0",
+        "illuminate/http": "^12.0",
+        "illuminate/console": "^12.0",
+        "illuminate/cache": "^12.0",
+        "illuminate/filesystem": "^12.0",
+        "illuminate/pagination": "^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "BristolDigital\\QwikBlog\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "BristolDigital\\QwikBlog\\QwikBlogServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }
