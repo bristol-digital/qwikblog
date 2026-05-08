@@ -129,9 +129,15 @@ class BlogController
         $limit = (int) config('qwikblog.feed_limit', 50);
         $posts = $this->blogService->getPublishedPosts()->take($limit);
 
+        // text/xml so browsers render the feed inline rather than offering
+        // it as a download. Feed readers identify the feed by its <rss>
+        // root element, not the HTTP content type, so they still consume
+        // it correctly. Autodiscovery via <link rel="alternate"
+        // type="application/rss+xml"> in the layout's <head> handles the
+        // case where feed readers do sniff the content type.
         return response()
             ->view('qwikblog::blog.feed', ['posts' => $posts])
-            ->header('Content-Type', 'application/rss+xml; charset=UTF-8');
+            ->header('Content-Type', 'text/xml; charset=UTF-8');
     }
 
     public function sitemap(): Response
