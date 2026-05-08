@@ -40,7 +40,7 @@
             <a href="{{ route('blog.index') }}" target="_blank" class="text-slate-300 hover:text-white text-sm">
                 View Blog &rarr;
             </a>
-            <form method="POST" action="{{ route('admin.logout') }}" class="inline">
+            <form method="POST" action="{{ route(config('qwikblog.admin_logout_route', 'admin.logout')) }}" class="inline">
                 @csrf
                 <button type="submit" class="text-slate-300 hover:text-white text-sm">
                     Logout

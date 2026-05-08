@@ -37,6 +37,50 @@ return [
 
     'admin_path' => env('QWIKBLOG_ADMIN_PATH', 'admin'),
 
+    /*
+    | Middleware that protects the admin routes (post create/edit/delete,
+    | image gallery, the Livewire posts table). Defaults to 'admin' — the
+    | alias the package registers for its own AdminAuth middleware, which
+    | uses ADMIN_USERNAME / ADMIN_PASSWORD from .env.
+    |
+    | To integrate with the host app's existing authentication instead of
+    | maintaining a separate username/password, set this to 'auth' (or
+    | whatever middleware your host uses to gate its own admin area). Then
+    | logged-in host users can access the blog admin without a second login.
+    |
+    | Examples:
+    |   QWIKBLOG_ADMIN_MIDDLEWARE=admin           // default — self-contained
+    |   QWIKBLOG_ADMIN_MIDDLEWARE=auth            // Laravel's session auth
+    |   QWIKBLOG_ADMIN_MIDDLEWARE=auth,can:edit-posts  // Laravel + a gate
+    */
+    'admin_middleware' => env('QWIKBLOG_ADMIN_MIDDLEWARE', 'admin'),
+
+    /*
+    | Route name that the admin layout's "Logout" button posts to. Defaults
+    | to the package's own admin.logout route. If you've set
+    | QWIKBLOG_ADMIN_MIDDLEWARE to integrate with Laravel's auth, set this
+    | to 'logout' so the button calls Laravel's logout endpoint instead
+    | (which is what's expected by users logged in via Laravel's auth flow).
+    */
+    'admin_logout_route' => env('QWIKBLOG_ADMIN_LOGOUT_ROUTE', 'admin.logout'),
+
+    /*
+    | Name of the host app's Blade layout that the public-facing blog views
+    | should @extends. Defaults to 'app' (i.e. resources/views/app.blade.php).
+    |
+    | If your host app's main layout lives elsewhere — say, 'layouts.app' or
+    | 'site.master' — set QWIKBLOG_LAYOUT in .env or override here.
+    |
+    | If your host doesn't have a layout at all, set this to
+    | 'qwikblog::layouts.app' to fall back to the package's bundled
+    | minimal layout (CDN Tailwind, Typography, Alpine — works zero-setup).
+    |
+    | Whichever layout is used, it must have @stack('head') somewhere in
+    | its <head> for SEO meta injection to work, and @yield('content')
+    | for the blog content to render.
+    */
+    'layout' => env('QWIKBLOG_LAYOUT', 'app'),
+
     'taxonomy_url_style' => env('QWIKBLOG_TAXONOMY_URL_STYLE', 'flat'),
 
     'related' => [

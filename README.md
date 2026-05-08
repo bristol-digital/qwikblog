@@ -276,8 +276,13 @@ fallback in any case.
 
 ## Admin
 
-A small, session-authenticated admin lives at `/admin` (or whatever path
-you set via `QWIKBLOG_ADMIN_PATH`).
+A small admin lives at `/admin` (or whatever path you set via `QWIKBLOG_ADMIN_PATH`).
+
+### Auth — three options
+
+The package's admin protection is configurable via `QWIKBLOG_ADMIN_MIDDLEWARE`. By default it uses the package's own self-contained auth (single shared username/password from `.env`). For sites with their own auth system, you can wire the blog admin into that instead so users only log in once.
+
+**Option 1 — Self-contained auth (default)**
 
 Set credentials in `.env`:
 
@@ -286,19 +291,57 @@ ADMIN_USERNAME=your-username
 ADMIN_PASSWORD=your-password
 ```
 
-If either is empty, login is refused — there is no default password.
+If either is empty, login is refused — there is no default password. Visit `/admin/login` to log in. This is the right choice for static sites, no-database deployments, or any host that doesn't already have a login system.
+
+**Option 2 — Integrate with Laravel's auth**
+
+If your host app already has Laravel auth set up (Breeze, Jetstream, Fortify, Sanctum, or a starter kit's bundled login), tell the package to use that instead:
+
+```dotenv
+QWIKBLOG_ADMIN_MIDDLEWARE=auth
+QWIKBLOG_ADMIN_LOGOUT_ROUTE=logout
+```
+
+Now any user logged in to your host app can access the blog admin at `/admin` (or `QWIKBLOG_ADMIN_PATH`). The logout button in the admin chrome calls your host's logout endpoint. You can ignore `ADMIN_USERNAME` / `ADMIN_PASSWORD` entirely.
+
+To restrict the blog admin to specific users (not just any authenticated user), combine with a Laravel gate:
+
+```dotenv
+QWIKBLOG_ADMIN_MIDDLEWARE=auth,can:manage-blog
+```
+
+Then define the gate in your host app's `AppServiceProvider`:
+
+```php
+Gate::define('manage-blog', fn(User $user) => $user->isAdmin());
+```
+
+**Option 3 — Custom middleware**
+
+Any middleware alias your host registers will work. Examples:
+
+```dotenv
+# Filament panel auth
+QWIKBLOG_ADMIN_MIDDLEWARE=panel.auth
+
+# Multiple middlewares stacked
+QWIKBLOG_ADMIN_MIDDLEWARE=auth,verified,role:editor
+
+# Fully custom
+QWIKBLOG_ADMIN_MIDDLEWARE=my-blog-gate
+```
+
+### Routes
 
 | Route | Description |
 |-------|-------------|
-| `/admin/login` | Login form |
+| `/admin/login` | Login form (used only with default `admin` middleware) |
 | `/admin` → `/admin/posts` | Posts index (Livewire — search, filters, pagination, polls every 30s) |
 | `/admin/posts/create` | New post |
 | `/admin/posts/{slug}/edit` | Edit post |
 | `/admin/posts/{slug}/images` | Manage images (Livewire) |
 
-The admin uses session auth via the `AdminAuth` middleware (alias `admin`
-registered in `bootstrap/app.php`). Sessions are file-based by default
-(`SESSION_DRIVER=file`), so no database is required.
+The package's `AdminAuth` middleware (alias `admin`) uses session auth, file-based by default (`SESSION_DRIVER=file`), so no database is required.
 
 ### Filtering
 
@@ -415,6 +458,9 @@ All package configuration lives in `config/qwikblog.php` and reads from
 | `QWIKBLOG_ADMIN_PER_PAGE` | `30` | Posts per page in admin table |
 | `QWIKBLOG_FEED_LIMIT` | `50` | Max items in RSS feed |
 | `QWIKBLOG_ADMIN_PATH` | `admin` | Admin URL prefix |
+| `QWIKBLOG_ADMIN_MIDDLEWARE` | `admin` | Middleware that gates the admin (set to `auth` to use Laravel's auth) |
+| `QWIKBLOG_ADMIN_LOGOUT_ROUTE` | `admin.logout` | Route name the admin's logout button posts to |
+| `QWIKBLOG_LAYOUT` | `app` | Layout name the public blog views extend |
 | `QWIKBLOG_TAXONOMY_URL_STYLE` | `flat` | `flat` (`/blog/{slug}`) or `prefixed` (`/blog/category/{slug}`) |
 | `QWIKBLOG_RELATED_TAG_WEIGHT` | `2` | Related-post tag weight |
 | `QWIKBLOG_RELATED_CATEGORY_WEIGHT` | `1` | Related-post category weight |

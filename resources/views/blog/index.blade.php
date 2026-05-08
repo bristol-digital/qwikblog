@@ -1,4 +1,4 @@
-@extends('app')
+@extends(config('qwikblog.layout', 'app'))
 @section('title', $searchQuery
     ? "Search: {$searchQuery}"
     : ($activeCategory

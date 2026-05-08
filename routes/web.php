@@ -49,7 +49,7 @@ Route::prefix($adminPath)->name('admin.')->group(function () {
     Route::post('login', [AdminController::class, 'login']);
     Route::post('logout', [AdminController::class, 'logout'])->name('logout');
 
-    Route::middleware('admin')->group(function () {
+    Route::middleware(config('qwikblog.admin_middleware', 'admin'))->group(function () {
         Route::get('/', fn() => redirect()->route('admin.posts.index'));
 
         Route::prefix('posts')->name('posts.')->group(function () {
