@@ -21,20 +21,46 @@ class BlogService
 
     public function getAllPosts(): Collection
     {
-        return Cache::remember(
+        $posts = Cache::remember(
             'blog.all_posts',
             (int) config('qwikblog.cache_duration', 3600),
-            function () {
-                File::ensureDirectoryExists($this->postsPath);
-
-                $files = File::glob($this->postsPath . '/*.md');
-
-                return collect($files)
-                    ->map(fn($file) => BlogPost::fromFile($file))
-                    ->sortByDesc('date')
-                    ->values();
-            }
+            fn() => $this->loadPostsFromDisk()
         );
+
+        // Self-heal stale cache. The cache may hold __PHP_Incomplete_Class
+        // (single object) if a previous version of the code stored something
+        // else under this key, or a Collection of incomplete BlogPost
+        // instances if the package was previously installed under a different
+        // namespace. The instanceof check on Collection short-circuits before
+        // we'd touch a non-Collection — calling methods on
+        // __PHP_Incomplete_Class would throw, which is the failure mode the
+        // earlier (less defensive) version of this code suffered from.
+        $needsRebuild = ! $posts instanceof Collection
+            || ($posts->isNotEmpty() && ! $posts->first() instanceof BlogPost);
+
+        if ($needsRebuild) {
+            Cache::forget('blog.all_posts');
+            $posts = $this->loadPostsFromDisk();
+            Cache::put(
+                'blog.all_posts',
+                $posts,
+                (int) config('qwikblog.cache_duration', 3600)
+            );
+        }
+
+        return $posts;
+    }
+
+    private function loadPostsFromDisk(): Collection
+    {
+        File::ensureDirectoryExists($this->postsPath);
+
+        $files = File::glob($this->postsPath . '/*.md');
+
+        return collect($files)
+            ->map(fn($file) => BlogPost::fromFile($file))
+            ->sortByDesc('date')
+            ->values();
     }
 
     public function getPublishedPosts(): Collection
