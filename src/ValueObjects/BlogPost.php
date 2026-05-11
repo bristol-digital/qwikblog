@@ -175,17 +175,74 @@ class BlogPost
         return array_values(array_filter($parts, fn($t) => $t !== ''));
     }
 
+    /**
+     * Hand-rolled YAML parser for post front matter.
+     *
+     * Supports two forms for list values, both producing the same internal
+     * representation (a comma-separated string that downstream `parseList`
+     * splits):
+     *
+     *   Inline:
+     *     categories: News, Updates
+     *
+     *   Multi-line YAML list:
+     *     categories:
+     *       - News
+     *       - Updates
+     *
+     * The package's own writer (toMarkdown) always emits the inline form,
+     * so a freshly admin-created post round-trips identically. The multi-
+     * line form is supported because it's what people instinctively reach
+     * for when authoring posts by hand or pasting from snippets.
+     *
+     * @return array<string,string>
+     */
     private static function parseFrontMatter(string $yaml): array
     {
         $lines = explode("\n", trim($yaml));
         $data = [];
 
+        $listKey = null;
+        $list = [];
+
+        $flushList = function () use (&$listKey, &$list, &$data): void {
+            if ($listKey !== null) {
+                $data[$listKey] = implode(', ', $list);
+                $listKey = null;
+                $list = [];
+            }
+        };
+
         foreach ($lines as $line) {
+            // Multi-line YAML list continuation: "  - item"
+            if ($listKey !== null && preg_match('/^\s+-\s*(.*)$/', $line, $m)) {
+                $list[] = self::yamlUnquote($m[1]);
+                continue;
+            }
+
+            // Anything else terminates the current list (if any)
+            $flushList();
+
             if (strpos($line, ':') !== false) {
                 [$key, $value] = explode(':', $line, 2);
-                $data[trim($key)] = trim(self::yamlUnquote($value));
+                $key = trim($key);
+                $value = trim(self::yamlUnquote($value));
+
+                if ($value === '') {
+                    // Empty value — this might be a list opener.
+                    // Mark the key as pending; subsequent "- item" lines will
+                    // populate it. If no list follows, $data[$key] stays ''.
+                    $listKey = $key;
+                    $list = [];
+                    $data[$key] = '';
+                } else {
+                    $data[$key] = $value;
+                }
             }
         }
+
+        // Flush any list that ran to the end of the front matter
+        $flushList();
 
         return $data;
     }

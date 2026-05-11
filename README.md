@@ -20,16 +20,8 @@ php artisan vendor:publish --tag=qwikblog-admin-js
 ```
 
 The admin JS publish puts `resources/js/qwikblog-admin.js` in your host app —
-a tiny Vite entry that bundles Toast UI Editor for the post form's body field.
-
-Set admin credentials in `.env` (see [Configuration](#configuration)):
-
-```dotenv
-ADMIN_USERNAME=your-username
-ADMIN_PASSWORD=your-password
-```
-
-Wire the admin's JS into your Vite build. In `vite.config.js`:
+a tiny Vite entry that imports Toast UI Editor for the post form's body field.
+Wire it into your Vite build (`vite.config.js`):
 
 ```js
 input: [
@@ -39,10 +31,22 @@ input: [
 ],
 ```
 
-Install the editor's npm dependency:
+Install the npm dependency that the admin JS imports:
 
 ```bash
 npm install @toast-ui/editor
+```
+
+> **Note:** the package can't auto-install its own npm dependencies because
+> Composer and npm are separate ecosystems. Every Laravel package that
+> uses JS libraries works this way — `composer require` for PHP,
+> `npm install` for JS, no automatic bridge between them.
+
+Set admin credentials in `.env` (see [Configuration](#configuration)):
+
+```dotenv
+ADMIN_USERNAME=your-username
+ADMIN_PASSWORD=your-password
 ```
 
 Make sure your host app's Tailwind setup includes the package's blade files
@@ -142,6 +146,24 @@ Markdown body goes here.
 
 The admin writes this format automatically. The legacy singular `category:`
 field is still read for back-compat with older posts.
+
+> **List values — inline or multi-line.** Categories and tags can be
+> written either inline (as above) or as multi-line YAML lists; both parse
+> identically:
+>
+> ```yaml
+> categories:
+>   - Announcements
+>   - News
+> tags:
+>   - launch
+>   - hello-world
+> ```
+>
+> The admin always writes the inline form. The multi-line form is
+> supported for hand-authored or pasted-in content — useful when working
+> with AI-generated drafts or copying from snippets that use standard
+> YAML list syntax.
 
 ## Categories and tags
 
@@ -410,36 +432,59 @@ at import time. Failures are non-fatal — posts are still created.
 
 ## Example post sets
 
-Bundled example sets live in `resources/seeds/{name}-posts.php`:
+The package ships a sample manifest (12 demo flamenco posts across 4
+categories, with images) you can use to populate a fresh install:
 
 ```bash
 php artisan blog:examples flamenco
 ```
 
-| Set | Description |
-|-----|-------------|
-| `flamenco` | 12 educational posts about flamenco — palos, history, compás, maestros |
+The command reads the bundled manifest directly from the package and
+downloads the referenced images. You only need to publish the seeds
+(`vendor:publish --tag=qwikblog-seeds`) if you want to edit the manifest
+before importing.
 
-Same flags as `blog:import` (`--overwrite`, `--skip-images`, `--dry-run`).
+To remove the demo content later:
 
-To list available sets: `php artisan blog:examples nonexistent` shows
-what's in `resources/seeds/`. To add your own, drop `<name>-posts.php`
-into that directory and it's runnable as `php artisan blog:examples <name>`.
+```bash
+rm resources/posts/*.md
+rm -rf public/images/blog/
+php artisan blog:refresh
+```
 
 ## Customising the look
 
-The public-facing views (`resources/views/blog/index.blade.php`,
-`show.blade.php`) use Vite-built Tailwind. Article body styling uses the
-[Tailwind Typography plugin](https://github.com/tailwindlabs/tailwindcss-typography)
+To customise any of the package's public-facing views (post index, single
+post, RSS feed, sitemap), publish them into your host app:
+
+```bash
+php artisan vendor:publish --tag=qwikblog-views
+```
+
+This copies every Blade file from the package into
+`resources/views/vendor/qwikblog/` in your project. The package's own
+copies stay untouched; Laravel's view loader gives priority to whatever
+sits in `resources/views/vendor/qwikblog/`, so anything you edit there
+overrides the default.
+
+The two views you'll most likely want to customise:
+
+| File | Purpose |
+|------|---------|
+| `resources/views/vendor/qwikblog/blog/index.blade.php` | Post listing page |
+| `resources/views/vendor/qwikblog/blog/show.blade.php` | Single post page |
+
+Both extend the layout named by `QWIKBLOG_LAYOUT` (default `app`). Article
+body styling uses the [Tailwind Typography plugin](https://github.com/tailwindlabs/tailwindcss-typography)
 — the `prose` class on `<article>` is the source of truth.
 
-The index uses a 5-column grid on desktop (4 columns of posts + a thinner
-sidebar column with categories, archive, tags, search). Sidebar widgets
-sit in `bg-gray-100` cards. Stacks to a single column on mobile.
+To revert to the package defaults later, just delete the file from
+`resources/views/vendor/qwikblog/` — the package's own version takes
+over again automatically.
 
-The admin uses CDN Tailwind to stay self-contained, plus a Vite-bundled
-JS file (`resources/js/qwikblog-admin.js` in your host app, published from
-the package on install) that provides Toast UI Editor.
+The admin views can be customised the same way (they're published by the
+same command), but most sites won't need to — the admin is meant to be
+functional rather than branded.
 
 ## Configuration
 

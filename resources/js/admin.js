@@ -1,7 +1,12 @@
 /**
  * Admin-only Vite entry.
  *
- * Loaded by the admin layout via @vite(['resources/js/admin.js']).
+ * This file is the *source* shipped inside the package. On install, host
+ * apps run `php artisan vendor:publish --tag=qwikblog-admin-js`, which
+ * copies it into `resources/js/qwikblog-admin.js` in the host app. The
+ * package's admin layout then loads the published file via
+ * `@vite(['resources/js/qwikblog-admin.js'])`.
+ *
  * Bundles Toast UI Editor for the post form's WYSIWYG body editor.
  *
  * We expose it as window.toastui to mirror the namespace shape the
