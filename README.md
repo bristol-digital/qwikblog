@@ -25,9 +25,9 @@ Wire it into your Vite build (`vite.config.js`):
 
 ```js
 input: [
-    'resources/css/app.css',
-    'resources/js/app.js',
-    'resources/js/qwikblog-admin.js',  // <-- add this
+  'resources/css/app.css',
+  'resources/js/app.js',
+  'resources/js/qwikblog-admin.js',  // <-- add this
 ],
 ```
 
@@ -68,9 +68,31 @@ window.Alpine = Alpine;
 Alpine.start();
 ```
 
-In your host app's `app.blade.php`, make sure you have `@stack('head')`
-inside `<head>` so the package can inject SEO meta. To enable RSS
-autodiscovery, also add:
+The package's public views (post index, single post, etc.) extend a
+layout in your host app. Which value of `QWIKBLOG_LAYOUT` to set in `.env`
+depends on what your project has:
+
+- **If you have `resources/views/app.blade.php`** — `QWIKBLOG_LAYOUT=app`
+- **If you have `resources/views/layouts/app.blade.php`** — `QWIKBLOG_LAYOUT=layouts.app`
+- **If you have neither yet** (common on fresh Laravel 11+ installs) — publish
+  the package's bundled starter layout and point at it:
+
+  ```bash
+  php artisan vendor:publish --tag=qwikblog-views
+  ```
+
+  Then in `.env`:
+
+  ```dotenv
+  QWIKBLOG_LAYOUT=vendor.qwikblog.app
+  ```
+
+  The bundled starter is clean and functional; you can edit it
+  (`resources/views/vendor/qwikblog/app.blade.php`) or replace it later
+  with your own layout.
+
+Whichever layout you use, make sure it has `@stack('head')` inside `<head>`
+so the package can inject SEO meta. To enable RSS autodiscovery, also add:
 
 ```html
 <link rel="alternate" type="application/rss+xml" title="{{ config('app.name') }}" href="{{ url('/blog/feed.xml') }}">
